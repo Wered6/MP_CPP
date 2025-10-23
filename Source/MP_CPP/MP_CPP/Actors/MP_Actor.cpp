@@ -16,6 +16,11 @@ AMP_Actor::AMP_Actor()
 void AMP_Actor::BeginPlay()
 {
 	Super::BeginPlay();
+
+	const bool bAuth = HasAuthority();
+	const ENetRole LocalRole = GetLocalRole();
+
+
 }
 
 void AMP_Actor::Tick(float DeltaTime)
