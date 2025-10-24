@@ -94,20 +94,29 @@ public:
 	/** IMP_Player Interface */
 	virtual USkeletalMeshComponent* GetSkeletalMesh_Implementation() const override;
 	virtual void GrantArmor_Implementation(float ArmorAmount) override;
+	virtual void IncrementPickupCount_Implementation() override;
 
 	// 1. Override GetLifetimeReplicatedProps
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 private:
-
 	// 2. Add the UPROPERTY macro with the Replicated specifier
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing=OnRep_Armor)
 	float Armor;
+
+	UPROPERTY(ReplicatedUsing=OnRep_PickupCount)
+	int32 PickupCount;
 
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* GeneralInput;
 
 	void OnGeneralInput();
+
+	UFUNCTION()
+	void OnRep_Armor();
+
+	UFUNCTION()
+	void OnRep_PickupCount(int32 PreviousValue);
 
 #pragma endregion
 };

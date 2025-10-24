@@ -156,12 +156,18 @@ void AMP_CPPCharacter::GrantArmor_Implementation(float ArmorAmount)
 		FString::Printf(TEXT("Armor: %f"), Armor));
 }
 
+void AMP_CPPCharacter::IncrementPickupCount_Implementation()
+{
+	++PickupCount;
+}
+
 void AMP_CPPCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	// 3. Call DOREPLIFETIME
-	DOREPLIFETIME(ThisClass, Armor);
+	DOREPLIFETIME(ThisClass, Armor)
+	DOREPLIFETIME(ThisClass, PickupCount)
 }
 
 void AMP_CPPCharacter::OnGeneralInput()
@@ -171,4 +177,28 @@ void AMP_CPPCharacter::OnGeneralInput()
 		5.f,
 		FColor::Green,
 		FString::Printf(TEXT("Armor: %f"), Armor));
+}
+
+void AMP_CPPCharacter::OnRep_Armor()
+{
+	GEngine->AddOnScreenDebugMessage(
+		-1,
+		5.f,
+		FColor::Orange,
+		FString::Printf(TEXT("Armor: %f"), Armor));
+}
+
+void AMP_CPPCharacter::OnRep_PickupCount(int32 PreviousValue)
+{
+	GEngine->AddOnScreenDebugMessage(
+			-1,
+			5.f,
+			FColor::Cyan,
+			FString::Printf(TEXT("Previous Pickup Count: %d"), PreviousValue));
+
+	GEngine->AddOnScreenDebugMessage(
+		-1,
+		5.f,
+		FColor::Red,
+		FString::Printf(TEXT("Pickup Count: %d"), PickupCount));
 }
