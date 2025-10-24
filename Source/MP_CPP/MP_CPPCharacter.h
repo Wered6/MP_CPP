@@ -98,6 +98,7 @@ public:
 
 	// 1. Override GetLifetimeReplicatedProps
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker) override;
 
 private:
 	// 2. Add the UPROPERTY macro with the Replicated specifier
@@ -117,6 +118,8 @@ private:
 
 	UFUNCTION()
 	void OnRep_PickupCount(int32 PreviousValue);
+
+	bool bReplicatePickupCount = false;
 
 #pragma endregion
 };

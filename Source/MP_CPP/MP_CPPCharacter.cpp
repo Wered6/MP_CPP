@@ -166,19 +166,30 @@ void AMP_CPPCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	// 3. Call DOREPLIFETIME
-	// DOREPLIFETIME(ThisClass, Armor)
-	DOREPLIFETIME(ThisClass, PickupCount)
 
 	DOREPLIFETIME_CONDITION(ThisClass, Armor, COND_InitialOrOwner)
+
+	DOREPLIFETIME_CONDITION(ThisClass, PickupCount, COND_Custom)
+}
+
+void AMP_CPPCharacter::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker)
+{
+	Super::PreReplication(ChangedPropertyTracker);
+
+	// If bReplicatePickupCount changes value, PickupCount will change replication status.
+	// NOTE - The value of bReplicatePickupCount only matters on the server.
+	DOREPLIFETIME_ACTIVE_OVERRIDE(ThisClass, PickupCount, bReplicatePickupCount)
 }
 
 void AMP_CPPCharacter::OnGeneralInput()
 {
+	bReplicatePickupCount = !bReplicatePickupCount;
+
 	GEngine->AddOnScreenDebugMessage(
 		-1,
 		5.f,
 		FColor::Green,
-		FString::Printf(TEXT("Armor: %f"), Armor));
+		FString::Printf(TEXT("bReplicatePickupCount: %d"), bReplicatePickupCount));
 }
 
 void AMP_CPPCharacter::OnRep_Armor()
@@ -193,10 +204,10 @@ void AMP_CPPCharacter::OnRep_Armor()
 void AMP_CPPCharacter::OnRep_PickupCount(int32 PreviousValue)
 {
 	GEngine->AddOnScreenDebugMessage(
-			-1,
-			5.f,
-			FColor::Cyan,
-			FString::Printf(TEXT("Previous Pickup Count: %d"), PreviousValue));
+		-1,
+		5.f,
+		FColor::Cyan,
+		FString::Printf(TEXT("Previous Pickup Count: %d"), PreviousValue));
 
 	GEngine->AddOnScreenDebugMessage(
 		-1,
