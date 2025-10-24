@@ -19,4 +19,8 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
+
+protected:
+	UFUNCTION(Client, Reliable)
+	void Client_PrintActorName();
 };

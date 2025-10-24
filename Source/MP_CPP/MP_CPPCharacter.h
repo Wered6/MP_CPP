@@ -127,5 +127,17 @@ private:
 
 	virtual void IncreaseHealth_Implementation(float HealthAmount) override;
 
+	// Remote Procedure Call (RPC) - Client, Server and NetMultiCast
+
+	UFUNCTION(Client, Reliable)
+	void Client_PrintMessage(const FString& Message);
+
+	FTimerHandle RPCDelayTimer;
+
+	void OnRPCDelayTimer();
+
+protected:
+	virtual void BeginPlay() override;
+
 #pragma endregion
 };
