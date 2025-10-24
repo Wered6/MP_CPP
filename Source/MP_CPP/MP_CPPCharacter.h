@@ -136,6 +136,9 @@ private:
 
 	void OnRPCDelayTimer();
 
+	UFUNCTION(Server, Reliable)
+	void Server_PrintMessage(const FString& Message);
+
 protected:
 	virtual void BeginPlay() override;
 

@@ -189,14 +189,7 @@ void AMP_CPPCharacter::PreReplication(IRepChangedPropertyTracker& ChangedPropert
 
 void AMP_CPPCharacter::OnGeneralInput()
 {
-	bReplicatePickupCount = !bReplicatePickupCount;
-
-	GEngine->AddOnScreenDebugMessage(
-		-1,
-		5.f,
-		FColor::Green,
-		FString::Printf(TEXT("bReplicatePickupCount: %d"), bReplicatePickupCount)
-	);
+	Server_PrintMessage("Please run this on the server");
 }
 
 void AMP_CPPCharacter::OnRep_Armor()
@@ -234,6 +227,19 @@ void AMP_CPPCharacter::IncreaseHealth_Implementation(float HealthAmount)
 	}
 }
 
+void AMP_CPPCharacter::Client_PrintMessage_Implementation(const FString& Message)
+{
+	FString MessageString = HasAuthority() ? "Server: " : "Client: ";
+	MessageString += Message;
+
+	GEngine->AddOnScreenDebugMessage(
+		-1,
+		30.f,
+		FColor::Yellow,
+		MessageString
+	);
+}
+
 void AMP_CPPCharacter::OnRPCDelayTimer()
 {
 	// if (HasAuthority())
@@ -247,8 +253,21 @@ void AMP_CPPCharacter::OnRPCDelayTimer()
 	}
 
 	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = this;
+	SpawnParams.Owner = nullptr;
 	GetWorld()->SpawnActor<AMP_Actor>(GetActorLocation(), GetActorRotation(), SpawnParams);
+}
+
+void AMP_CPPCharacter::Server_PrintMessage_Implementation(const FString& Message)
+{
+	FString MessageString = HasAuthority() ? "Server: " : "Client: ";
+	MessageString += Message;
+
+	GEngine->AddOnScreenDebugMessage(
+		-1,
+		30.f,
+		FColor::Purple,
+		MessageString
+	);
 }
 
 void AMP_CPPCharacter::BeginPlay()
@@ -256,17 +275,4 @@ void AMP_CPPCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	GetWorldTimerManager().SetTimer(RPCDelayTimer, this, &AMP_CPPCharacter::OnRPCDelayTimer, 4.f, false);
-}
-
-void AMP_CPPCharacter::Client_PrintMessage_Implementation(const FString& Message)
-{
-	FString MessageString = HasAuthority() ? "Server: " : "Client: ";
-	MessageString += Message;
-
-	GEngine->AddOnScreenDebugMessage(
-		-1,
-		5.f,
-		FColor::Yellow,
-		MessageString
-	);
 }
