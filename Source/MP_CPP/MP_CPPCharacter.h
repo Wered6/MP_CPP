@@ -8,6 +8,7 @@
 #include "MP_CPP/Interaction/MP_Player.h"
 #include "MP_CPPCharacter.generated.h"
 
+class UMP_HealthComponent;
 class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
@@ -120,6 +121,11 @@ private:
 	void OnRep_PickupCount(int32 PreviousValue);
 
 	bool bReplicatePickupCount = false;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UMP_HealthComponent> HealthComponent;
+
+	virtual void IncreaseHealth_Implementation(float HealthAmount) override;
 
 #pragma endregion
 };

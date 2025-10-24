@@ -11,6 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "MP_CPP.h"
+#include "MP_CPP/Components/MP_HealthComponent.h"
 #include "Net/UnrealNetwork.h"
 
 AMP_CPPCharacter::AMP_CPPCharacter()
@@ -49,6 +50,9 @@ AMP_CPPCharacter::AMP_CPPCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+
+	HealthComponent = CreateDefaultSubobject<UMP_HealthComponent>("HealthComponent");
+	HealthComponent->SetIsReplicated(true);
 }
 
 void AMP_CPPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -153,7 +157,8 @@ void AMP_CPPCharacter::GrantArmor_Implementation(float ArmorAmount)
 		-1,
 		5.f,
 		FColor::Green,
-		FString::Printf(TEXT("Armor: %f"), Armor));
+		FString::Printf(TEXT("Armor: %f"), Armor)
+	);
 }
 
 void AMP_CPPCharacter::IncrementPickupCount_Implementation()
@@ -189,7 +194,8 @@ void AMP_CPPCharacter::OnGeneralInput()
 		-1,
 		5.f,
 		FColor::Green,
-		FString::Printf(TEXT("bReplicatePickupCount: %d"), bReplicatePickupCount));
+		FString::Printf(TEXT("bReplicatePickupCount: %d"), bReplicatePickupCount)
+	);
 }
 
 void AMP_CPPCharacter::OnRep_Armor()
@@ -198,7 +204,8 @@ void AMP_CPPCharacter::OnRep_Armor()
 		-1,
 		5.f,
 		FColor::Orange,
-		FString::Printf(TEXT("Armor: %f"), Armor));
+		FString::Printf(TEXT("Armor: %f"), Armor)
+	);
 }
 
 void AMP_CPPCharacter::OnRep_PickupCount(int32 PreviousValue)
@@ -207,11 +214,21 @@ void AMP_CPPCharacter::OnRep_PickupCount(int32 PreviousValue)
 		-1,
 		5.f,
 		FColor::Cyan,
-		FString::Printf(TEXT("Previous Pickup Count: %d"), PreviousValue));
+		FString::Printf(TEXT("Previous Pickup Count: %d"), PreviousValue)
+	);
 
 	GEngine->AddOnScreenDebugMessage(
 		-1,
 		5.f,
 		FColor::Red,
-		FString::Printf(TEXT("Pickup Count: %d"), PickupCount));
+		FString::Printf(TEXT("Pickup Count: %d"), PickupCount)
+	);
+}
+
+void AMP_CPPCharacter::IncreaseHealth_Implementation(float HealthAmount)
+{
+	if (IsValid(HealthComponent))
+	{
+		HealthComponent->SetHealth(HealthComponent->GetHealth() + HealthAmount);
+	}
 }

@@ -39,7 +39,7 @@ void AMP_Pickup::NotifyActorBeginOverlap(AActor* OtherActor)
 	// This will only happen on the server.
 	if (OtherActor->Implements<UMP_Player>())
 	{
-		IMP_Player::Execute_IncrementPickupCount(OtherActor);
+		IMP_Player::Execute_IncreaseHealth(OtherActor, HealthValue);
 		Destroy();
 	}
 }
