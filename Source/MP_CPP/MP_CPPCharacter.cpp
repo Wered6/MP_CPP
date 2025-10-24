@@ -11,12 +11,13 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "MP_CPP.h"
+#include "Net/UnrealNetwork.h"
 
 AMP_CPPCharacter::AMP_CPPCharacter()
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
-		
+
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -53,8 +54,8 @@ AMP_CPPCharacter::AMP_CPPCharacter()
 void AMP_CPPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	// Set up action bindings
-	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
-		
+	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	{
 		// Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
@@ -65,10 +66,16 @@ void AMP_CPPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMP_CPPCharacter::Look);
+
+		// General input for testing
+		EnhancedInputComponent->BindAction(GeneralInput, ETriggerEvent::Started, this, &AMP_CPPCharacter::OnGeneralInput);
 	}
 	else
 	{
-		UE_LOG(LogMP_CPP, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
+		UE_LOG(LogMP_CPP, Error,
+		       TEXT(
+			       "'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."
+		       ), *GetNameSafe(this));
 	}
 }
 
@@ -130,4 +137,38 @@ void AMP_CPPCharacter::DoJumpEnd()
 {
 	// signal the character to stop jumping
 	StopJumping();
+}
+
+
+USkeletalMeshComponent* AMP_CPPCharacter::GetSkeletalMesh_Implementation() const
+{
+	return GetMesh();
+}
+
+void AMP_CPPCharacter::GrantArmor_Implementation(float ArmorAmount)
+{
+	Armor = ArmorAmount;
+
+	GEngine->AddOnScreenDebugMessage(
+		-1,
+		5.f,
+		FColor::Green,
+		FString::Printf(TEXT("Armor: %f"), Armor));
+}
+
+void AMP_CPPCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// 3. Call DOREPLIFETIME
+	DOREPLIFETIME(ThisClass, Armor);
+}
+
+void AMP_CPPCharacter::OnGeneralInput()
+{
+	GEngine->AddOnScreenDebugMessage(
+		-1,
+		5.f,
+		FColor::Green,
+		FString::Printf(TEXT("Armor: %f"), Armor));
 }

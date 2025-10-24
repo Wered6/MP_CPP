@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "MP_CPP/Interaction/MP_Player.h"
 #include "MP_CPPCharacter.generated.h"
 
 class USpringArmComponent;
@@ -19,7 +20,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
  *  Implements a controllable orbiting camera
  */
 UCLASS(abstract)
-class AMP_CPPCharacter : public ACharacter
+class AMP_CPPCharacter : public ACharacter, public IMP_Player
 {
 	GENERATED_BODY()
 
@@ -30,9 +31,8 @@ class AMP_CPPCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
-	
-protected:
 
+protected:
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* JumpAction;
@@ -50,17 +50,14 @@ protected:
 	UInputAction* MouseLookAction;
 
 public:
-
 	/** Constructor */
-	AMP_CPPCharacter();	
+	AMP_CPPCharacter();
 
 protected:
-
 	/** Initialize input action bindings */
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 protected:
-
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
 
@@ -68,7 +65,6 @@ protected:
 	void Look(const FInputActionValue& Value);
 
 public:
-
 	/** Handles move inputs from either controls or UI interfaces */
 	UFUNCTION(BlueprintCallable, Category="Input")
 	virtual void DoMove(float Right, float Forward);
@@ -86,11 +82,32 @@ public:
 	virtual void DoJumpEnd();
 
 public:
-
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-};
 
+#pragma region CrashCourse
+
+public:
+	/** IMP_Player Interface */
+	virtual USkeletalMeshComponent* GetSkeletalMesh_Implementation() const override;
+	virtual void GrantArmor_Implementation(float ArmorAmount) override;
+
+	// 1. Override GetLifetimeReplicatedProps
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+private:
+
+	// 2. Add the UPROPERTY macro with the Replicated specifier
+	UPROPERTY(Replicated)
+	float Armor;
+
+	UPROPERTY(EditAnywhere, Category="Input")
+	UInputAction* GeneralInput;
+
+	void OnGeneralInput();
+
+#pragma endregion
+};
