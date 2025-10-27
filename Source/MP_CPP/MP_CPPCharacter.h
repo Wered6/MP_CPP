@@ -50,6 +50,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* MouseLookAction;
 
+	UPROPERTY(EditAnywhere, Category="Input")
+	UInputAction* ServerTravelAction;
+
 public:
 	/** Constructor */
 	AMP_CPPCharacter();
@@ -64,6 +67,8 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
+
+	void TravelToDestinationMap();
 
 public:
 	/** Handles move inputs from either controls or UI interfaces */

@@ -76,6 +76,8 @@ void AMP_CPPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		// General input for testing
 		EnhancedInputComponent->BindAction(GeneralInput, ETriggerEvent::Started, this, &AMP_CPPCharacter::OnGeneralInput);
+
+		EnhancedInputComponent->BindAction(ServerTravelAction, ETriggerEvent::Started, this, &ThisClass::TravelToDestinationMap);
 	}
 	else
 	{
@@ -102,6 +104,14 @@ void AMP_CPPCharacter::Look(const FInputActionValue& Value)
 
 	// route the input
 	DoLook(LookAxisVector.X, LookAxisVector.Y);
+}
+
+void AMP_CPPCharacter::TravelToDestinationMap()
+{
+	if (HasAuthority())
+	{
+		GetWorld()->ServerTravel(TEXT("DestinationMap"));
+	}
 }
 
 void AMP_CPPCharacter::DoMove(float Right, float Forward)
