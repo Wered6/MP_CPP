@@ -2,6 +2,7 @@
 
 
 #include "MP_GameMode.h"
+#include "MP_GameState.h"
 
 AMP_GameMode::AMP_GameMode()
 {
@@ -26,6 +27,17 @@ void AMP_GameMode::StartMatch()
 		FColor::Orange,
 		"The match has started."
 	);
+}
+
+void AMP_GameMode::PostLogin(APlayerController* NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+
+	AMP_GameState* MP_GameState = GetGameState<AMP_GameState>();
+	if (IsValid(MP_GameState))
+	{
+		MP_GameState->AddTeamMember(NewPlayer);
+	}
 }
 
 void AMP_GameMode::StartDelayFinished()

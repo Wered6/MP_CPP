@@ -11,8 +11,10 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "MP_CPP.h"
+#include "Kismet/GameplayStatics.h"
 #include "MP_CPP/Actors/MP_Actor.h"
 #include "MP_CPP/Components/MP_HealthComponent.h"
+#include "MP_CPP/Game/MP_GameState.h"
 #include "Net/UnrealNetwork.h"
 
 AMP_CPPCharacter::AMP_CPPCharacter()
@@ -189,7 +191,19 @@ void AMP_CPPCharacter::PreReplication(IRepChangedPropertyTracker& ChangedPropert
 
 void AMP_CPPCharacter::OnGeneralInput()
 {
-	Server_PrintMessage(FString());
+	AMP_GameState* MP_GameState = Cast<AMP_GameState>(UGameplayStatics::GetGameState(this));
+	APlayerController* PlayerController = GetController<APlayerController>();
+	if (IsValid(MP_GameState) && IsValid(PlayerController))
+	{
+		const FString TeamMessage = FString::Printf(TEXT("Team %hs"), MP_GameState->IsTeamOne(PlayerController) ? "One" : "Two");
+
+		GEngine->AddOnScreenDebugMessage(
+			-1,
+			60.f,
+			FColor::Cyan,
+			TeamMessage
+		);
+	}
 }
 
 void AMP_CPPCharacter::OnRep_Armor()

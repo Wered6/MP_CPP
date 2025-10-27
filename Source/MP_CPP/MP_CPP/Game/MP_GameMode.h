@@ -22,6 +22,7 @@ protected:
 
 public:
 	virtual void StartMatch() override;
+	virtual void PostLogin(APlayerController* NewPlayer) override;
 
 private:
 	FTimerHandle MatchStartTimer;
