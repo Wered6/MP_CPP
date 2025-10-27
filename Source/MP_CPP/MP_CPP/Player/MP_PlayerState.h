@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerState.h"
 #include "MP_PlayerState.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPickupCountChanged, int32, Count);
+
 /**
  *
  */
@@ -15,6 +17,8 @@ class MP_CPP_API AMP_PlayerState : public APlayerState
 	GENERATED_BODY()
 
 public:
+	AMP_PlayerState();
+
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 	int32 GetNumPickups() const
@@ -22,13 +26,14 @@ public:
 		return NumPickups;
 	}
 
-	void SetNumPickups(int32 Amount)
-	{
-		NumPickups = Amount;
-	}
+	void SetNumPickups(int32 Amount);
+
+	FPickupCountChanged OnPickupCountChanged;
 
 private:
-
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing=OnRep_NumPickups)
 	int32 NumPickups;
+
+	UFUNCTION()
+	void OnRep_NumPickups();
 };

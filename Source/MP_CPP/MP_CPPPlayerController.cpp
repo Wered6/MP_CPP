@@ -7,6 +7,8 @@
 #include "InputMappingContext.h"
 #include "Blueprint/UserWidget.h"
 #include "MP_CPP.h"
+#include "MP_CPP/Player/MP_PlayerState.h"
+#include "MP_CPP/UI/MP_PickupCountWidget.h"
 #include "Widgets/Input/SVirtualJoystick.h"
 
 void AMP_CPPPlayerController::BeginPlay()
@@ -23,13 +25,33 @@ void AMP_CPPPlayerController::BeginPlay()
 		{
 			// add the controls to the player screen
 			MobileControlsWidget->AddToPlayerScreen(0);
-
-		} else {
-
+		}
+		else
+		{
 			UE_LOG(LogMP_CPP, Error, TEXT("Could not spawn mobile controls widget."));
+		}
+	}
 
+	if (!IsLocalController())
+	{
+		return;
+	}
+
+	PickupCountWidget = CreateWidget<UMP_PickupCountWidget>(this, PickupCountWidgetClass);
+	if (IsValid(PickupCountWidget))
+	{
+		PickupCountWidget->AddToViewport();
+	}
+
+	if (HasAuthority())
+	{
+		AMP_PlayerState* MP_PlayerState = GetPlayerState<AMP_PlayerState>();
+		if (!IsValid(MP_PlayerState))
+		{
+			return;
 		}
 
+		MP_PlayerState->OnPickupCountChanged.AddDynamic(this, &ThisClass::OnPickupCountChanged);
 	}
 }
 
@@ -41,7 +63,8 @@ void AMP_CPPPlayerController::SetupInputComponent()
 	if (IsLocalPlayerController())
 	{
 		// Add Input Mapping Contexts
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<
+			UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 		{
 			for (UInputMappingContext* CurrentContext : DefaultMappingContexts)
 			{
@@ -58,4 +81,32 @@ void AMP_CPPPlayerController::SetupInputComponent()
 			}
 		}
 	}
+}
+
+void AMP_CPPPlayerController::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	if (!IsLocalController())
+	{
+		return;
+	}
+
+	AMP_PlayerState* MP_PlayerState = GetPlayerState<AMP_PlayerState>();
+	if (!IsValid(MP_PlayerState))
+	{
+		return;
+	}
+
+	MP_PlayerState->OnPickupCountChanged.AddDynamic(this, &ThisClass::OnPickupCountChanged);
+}
+
+void AMP_CPPPlayerController::OnPickupCountChanged(int32 Count)
+{
+	if (!IsValid(PickupCountWidget))
+	{
+		return;
+	}
+
+	PickupCountWidget->SetPickupCount(Count);
 }

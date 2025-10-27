@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "MP_CPPPlayerController.generated.h"
 
+class UMP_PickupCountWidget;
 class UInputMappingContext;
 class UUserWidget;
 
@@ -17,9 +18,8 @@ UCLASS(abstract)
 class AMP_CPPPlayerController : public APlayerController
 {
 	GENERATED_BODY()
-	
-protected:
 
+protected:
 	/** Input Mapping Contexts */
 	UPROPERTY(EditAnywhere, Category ="Input|Input Mappings")
 	TArray<UInputMappingContext*> DefaultMappingContexts;
@@ -41,4 +41,15 @@ protected:
 	/** Input mapping context setup */
 	virtual void SetupInputComponent() override;
 
+	virtual void OnRep_PlayerState() override;
+
+private:
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UMP_PickupCountWidget> PickupCountWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UMP_PickupCountWidget> PickupCountWidget;
+
+	UFUNCTION()
+	void OnPickupCountChanged(int32 Count);
 };
