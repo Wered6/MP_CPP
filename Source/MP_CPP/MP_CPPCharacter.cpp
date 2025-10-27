@@ -189,7 +189,7 @@ void AMP_CPPCharacter::PreReplication(IRepChangedPropertyTracker& ChangedPropert
 
 void AMP_CPPCharacter::OnGeneralInput()
 {
-	Server_PrintMessage("Please run this on the server");
+	Server_PrintMessage(FString());
 }
 
 void AMP_CPPCharacter::OnRep_Armor()
@@ -257,6 +257,11 @@ void AMP_CPPCharacter::OnRPCDelayTimer()
 	// GetWorld()->SpawnActor<AMP_Actor>(GetActorLocation(), GetActorRotation(), SpawnParams);
 
 	Multicast_PrintMessage("Print this on the server and all relevant clients");
+}
+
+bool AMP_CPPCharacter::Server_PrintMessage_Validate(const FString& Message)
+{
+	return !Message.IsEmpty();
 }
 
 void AMP_CPPCharacter::Server_PrintMessage_Implementation(const FString& Message)

@@ -136,7 +136,7 @@ private:
 
 	void OnRPCDelayTimer();
 
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_PrintMessage(const FString& Message);
 
 	UFUNCTION(NetMulticast, Reliable)
