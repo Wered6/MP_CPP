@@ -12,9 +12,9 @@
 #include "InputActionValue.h"
 #include "MP_CPP.h"
 #include "Kismet/GameplayStatics.h"
-#include "MP_CPP/Actors/MP_Actor.h"
 #include "MP_CPP/Components/MP_HealthComponent.h"
 #include "MP_CPP/Game/MP_GameState.h"
+#include "MP_CPP/Player/MP_PlayerState.h"
 #include "Net/UnrealNetwork.h"
 
 AMP_CPPCharacter::AMP_CPPCharacter()
@@ -191,19 +191,18 @@ void AMP_CPPCharacter::PreReplication(IRepChangedPropertyTracker& ChangedPropert
 
 void AMP_CPPCharacter::OnGeneralInput()
 {
-	AMP_GameState* MP_GameState = Cast<AMP_GameState>(UGameplayStatics::GetGameState(this));
-	APlayerController* PlayerController = GetController<APlayerController>();
-	if (IsValid(MP_GameState) && IsValid(PlayerController))
+	AMP_PlayerState* MP_PlayerState = GetPlayerState<AMP_PlayerState>();
+	if (!IsValid(MP_PlayerState))
 	{
-		const FString TeamMessage = FString::Printf(TEXT("Team %hs"), MP_GameState->IsTeamOne(PlayerController) ? "One" : "Two");
-
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			60.f,
-			FColor::Cyan,
-			TeamMessage
-		);
+		return;
 	}
+
+	GEngine->AddOnScreenDebugMessage(
+		-1,
+		35.f,
+		FColor::Blue,
+		FString::Printf(TEXT("NumPickups: %d"), MP_PlayerState->GetNumPickups())
+	);
 }
 
 void AMP_CPPCharacter::OnRep_Armor()
